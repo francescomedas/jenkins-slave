@@ -1,0 +1,54 @@
+{
+    "description": "This is the Packer file for building an AWS AMI containing Jenkins agent base installation",
+    "variables": {
+      "aws_access_key_id":     "{{ env `AWS_ACCESS_KEY_ID` }}",
+      "aws_secret_access_key": "{{ env `AWS_SECRET_ACCESS_KEY` }}",
+      "aws_region":            "eu-west-1",
+      "subnet_id":             "subnet-01f6e371859e8a22c",
+      "inst_type":             "t2.micro",
+      "ssh_user":              "centos"
+    },
+    "builders": [
+      {
+        "name": "amazon-ebs-centos-systemd",
+        "type": "amazon-ebs",
+        "access_key": "{{ user `aws_access_key_id` }}",
+        "secret_key": "{{ user `aws_secret_access_key` }}",
+        "region": "{{ user `aws_region` }}",
+        "subnet_id": "{{ user `subnet_id` }}",
+        "force_deregister": true,
+        "force_delete_snapshot": true,
+        "ssh_pty": false,
+        "instance_type": "{{ user `inst_type` }}",
+        "associate_public_ip_address": true,
+        "source_ami": "ami-0047b5df4f5c2a90e",
+        "ssh_username": "{{ user `ssh_user` }}",
+        "ssh_timeout": "5m",
+        "ami_name": "jenkins-node-base-image-centos-7-{{ timestamp }}",
+        "communicator": "ssh",
+        "tags": {
+          "Name": "Jenkins Node Image Centos 7 {{ timestamp }}",
+          "system": "Jenkins",
+          "product": "Jenkins Node",
+          "built-by": "DevOps Platform Team",
+          "owner": "DevOps Platform Team",
+          "os": "centos",
+          "os-version": "7"
+        }
+      }
+    ],
+    "provisioners": [
+      {
+        "type": "shell",
+        "script": "jenkins-slave/packer-template/scripts/docker-install.sh"
+      },
+      {
+        "type": "shell",
+        "script": "jenkins-slave/packer-template/scripts/jenkins-install.sh"
+      },
+      {
+        "type": "shell",
+        "script": "jenkins-slave/packer-template/scripts/cleanup.sh"
+      }
+    ]
+  }
