@@ -31,23 +31,15 @@ resource "aws_autoscaling_group" "slave" {
   lifecycle {
     create_before_destroy = true
   }
-  tags = [
-    {
-      key                 = "Name"
-      value               = "jenkins-slave"
+  dynamic "tag" {
+    for_each = var.resources_tags
+
+    content {
+      key                 = tag.key
+      value               = tag.value
       propagate_at_launch = true
-    },
-    {
-      key                 = "Application"
-      value               = "Jenkins"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "Owner"
-      value               = "DevOps Platform"
-      propagate_at_launch = true
-    },
-  ]
+    }
+  }
 }
 
 resource "aws_launch_configuration" "slave" {

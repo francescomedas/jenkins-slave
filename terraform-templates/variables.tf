@@ -49,3 +49,7 @@ variable "slaves_min_size" {
 variable "slaves_desired_capacity" {
   type = number
 }
+
+variable "resources_tags" {
+  type = map
+}
